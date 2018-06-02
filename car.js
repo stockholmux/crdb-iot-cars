@@ -107,7 +107,7 @@ commands.viewroads = async.seq(                                                 
   },
   function(commandArgs,roads,cb) {                                                      // get all the values from the roads
     let markerMulti = client.batch();                                                   // create a pipeline
-
+    commandArgs.roads = roads;
     commandArgs.roads.forEach((aRoad) => {                                              // iterate through the roads
       markerMulti.hgetall(rk(keys.roadMarker,aRoad));                                   // get all the values for each road
     });
@@ -115,10 +115,10 @@ commands.viewroads = async.seq(                                                 
   },
   async.asyncify((commandArgs,markers) => {                                             // `async.asyncify` creates a callback-first function out of a sync function
     let roadsAndMarkers = {};                                                           // create an empty object that we will populate with the forEach
-    roads.forEach((aRoad,roadIndex) => {                                                // iterate through the road marker results               
+    commandArgs.roads.forEach((aRoad,roadIndex) => {                                    // iterate through the road marker results               
       roadsAndMarkers[aRoad] = markers[roadIndex];                                      // return the plate and mile marker for each road
     });
-    return roads;
+    return roadsAndMarkers;
   })
 );
 
