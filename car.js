@@ -25,11 +25,12 @@ const
   command       = argv._,                                                               // underscore from the `argv` in 'yargs' returns the command
   commands      = {},                                                                   // empty object to later populate with the commands from the command line
   keys          = {                                                                     // `keys` keeps all the string literals out of the program
-    roads         : '{demo}:roads',
-    allRoads      : '{demo}:all-roads',
-    roadMarker    : '{demo}:road-marker'
+    roads         : 'roads',
+    allRoads      : 'all-roads',
+    roadMarker    : 'road-marker'
   };
 
+function tagRoad(road) { return '{'+road+'}'; }
 
 function returnResultsAndArugments(commandArgs,cb) {                                    // sugar to handle errors in a callback
   return (err,results) => {
@@ -84,8 +85,8 @@ commands.marker = async.seq(                                                    
   function addMarker(commandArgs,cb) {                                                  // add a marker to the set and incr the correct plate 
     client
       .multi()                                                                          // create an atomic transaction
-      .sadd(rk(keys.roads,commandArgs.road),commandArgs.plate)                          // add to a set at the key roads:[road from the command line], the member is the plate from the command line
-      .hincrby(rk(keys.roadMarker,commandArgs.road),commandArgs.plate,1)                // increment a hash value at value 'road-marker:[road from the command line], the field is the plate from the command line and the by one step
+      .sadd(rk(keys.roads,tagRoad(commandArgs.road)),commandArgs.plate)                          // add to a set at the key roads:[road from the command line], the member is the plate from the command line
+      .hincrby(rk(keys.roadMarker,tagRoad(commandArgs.road)),commandArgs.plate,1)                // increment a hash value at value 'road-marker:[road from the command line], the field is the plate from the command line and the by one step
       .exec(returnResultsAndArugments(commandArgs,cb));                                 // execute the two together
   },
   async.asyncify((commandArgs,addMultiResults) => {                                     // `async.asyncify` creates a callback-first function out of a sync function
@@ -109,7 +110,7 @@ commands.viewroads = async.seq(                                                 
     let markerMulti = client.batch();                                                   // create a pipeline
     commandArgs.roads = roads;
     commandArgs.roads.forEach((aRoad) => {                                              // iterate through the roads
-      markerMulti.hgetall(rk(keys.roadMarker,aRoad));                                   // get all the values for each road
+      markerMulti.hgetall(rk(keys.roadMarker,tagRoad(aRoad)));                                   // get all the values for each road
     });
     markerMulti.exec(returnResultsAndArugments(commandArgs,cb));                        // execute the pipeline
   },
