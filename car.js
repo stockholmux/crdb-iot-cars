@@ -25,9 +25,9 @@ const
   command       = argv._,                                                               // underscore from the `argv` in 'yargs' returns the command
   commands      = {},                                                                   // empty object to later populate with the commands from the command line
   keys          = {                                                                     // `keys` keeps all the string literals out of the program
-    roads         : 'roads',
-    allRoads      : 'all-roads',
-    roadMarker    : 'road-marker'
+    roads         : '{demo}:roads',
+    allRoads      : '{demo}:all-roads',
+    roadMarker    : '{demo}:road-marker'
   };
 
 
